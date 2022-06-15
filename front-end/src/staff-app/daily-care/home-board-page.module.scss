@@ -1,0 +1,54 @@
+.toolbar {
+  &__formControl{
+    min-width: 120px !important;
+    svg{
+      right: 2px !important;
+    }
+  }
+  &__item_wrapper {
+    display: flex;
+    align-items: center;
+  }
+  &__select {
+    color: #fff !important;
+    font-weight: 600 !important;
+    font-family: unset !important;
+    border: 1px solid #fff !important;
+    div {
+      padding: 14px 14px !important;
+      border: none !important;
+    }
+    &:hover {
+      border: 1px solid #fff !important;
+    }
+    fieldset {
+      border: unset !important;
+    }
+    svg {
+      color: #fff !important;
+    }
+  }
+  &__search {
+    color: #fff !important;
+    div {
+      border: 1px solid #fff !important;
+    }
+    input {
+      color: #fff !important;
+      padding: 14px 14px !important;
+    }
+    fieldset {
+      border: unset !important;
+    }
+  }
+  &__sort{
+    &_enabled{
+      margin-left: 4px;
+      opacity: 1;
+    }
+    &_disabled{
+      margin-left: 4px;
+      opacity: 0.5;
+    }
+  }
+}

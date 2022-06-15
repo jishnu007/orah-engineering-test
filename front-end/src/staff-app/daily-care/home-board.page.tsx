@@ -9,17 +9,21 @@ import { Person } from "shared/models/person"
 import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
-import { useStudents } from "../../shared/contexts/student-context"
-import { RolllStateType } from "../../shared/models/roll"
+import { useStudents } from "shared/contexts/student-context"
+import { RolllStateType } from "shared/models/roll"
 import { TextField, Select, MenuItem, FormControl } from "@material-ui/core"
+import { PersonHelper } from "shared/models/person"
+import styles from "./home-board-page.module.scss"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const { students, setStudents } = useStudents()
-  const [filteredStudents, setFilteredStudents] = useState<Person[]>([])
   const [isFiltering, setIsFiltering] = useState<Boolean>(false)
   const [filterType, setFilterType] = useState<ItemType>()
+  const [sortOrder, setSortOrder] = useState<string>("")
+  const [sortCriteria, setSortCriteria] = useState<string>("first_name")
+  const [searchText, setSearchText] = useState<string>("")
 
   useEffect(() => {
     if (data) setStudents(data.students)
@@ -29,10 +33,30 @@ export const HomeBoardPage: React.FC = () => {
     void getStudents()
   }, [getStudents])
 
+  const changeSortCriteria = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setSortCriteria(event.target.value as string)
+  }
+  const isSearchCriteriaSuccess = (student: Person) => {
+    if (!searchText) return true
+    return PersonHelper.getFullName(student).toLowerCase().match(searchText.toLowerCase())
+  }
+  const handleChangeSearchText = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const searchString = event.target.value as string
+    setSearchText(searchString)
+  }
+
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
       setIsRollMode(true)
+      return
     }
+    students.sort((a: Person | any, b: Person) => {
+      if (sortCriteria == "first_name") {
+        return sortOrder === "asc" ? b.first_name.localeCompare(a.first_name) : a.first_name.localeCompare(b.first_name)
+      }
+      return sortOrder === "asc" ? b.last_name.localeCompare(a.last_name) : a.last_name.localeCompare(b.last_name)
+    })
+    sortOrder === "asc" ? setSortOrder("desc") : setSortOrder("asc")
   }
 
   const onActiveRollAction = (action: ActiveRollAction, type?: ItemType) => {
@@ -50,8 +74,13 @@ export const HomeBoardPage: React.FC = () => {
   return (
     <>
       <S.PageContainer>
-        {JSON.stringify(students)}
-        <Toolbar onItemClick={onToolbarAction} />
+        <Toolbar
+          onItemClick={onToolbarAction}
+          sortOrder={sortOrder}
+          sortCriteria={sortCriteria}
+          handleChangeCriteria={changeSortCriteria}
+          handleChangeSearchText={handleChangeSearchText}
+        />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -62,7 +91,8 @@ export const HomeBoardPage: React.FC = () => {
         {loadState === "loaded" && students && (
           <>
             {students.map((s) => {
-              if ((isFiltering && s.role_state == filterType) || !isFiltering) return <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
+              if ((isFiltering && s.role_state == filterType && isSearchCriteriaSuccess(s)) || (!isFiltering && isSearchCriteriaSuccess(s)))
+                return <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
             })}
           </>
         )}
@@ -81,13 +111,38 @@ type ItemType = RolllStateType | "all"
 type ToolbarAction = "roll" | "sort"
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
+  sortOrder: String
+  sortCriteria: String
+  handleChangeCriteria: (event: React.ChangeEvent<{ value: unknown }>) => void
+  handleChangeSearchText: (event: React.ChangeEvent<{ value: unknown }>) => void
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick } = props
+  const { sortCriteria, sortOrder, onItemClick, handleChangeCriteria, handleChangeSearchText } = props
   return (
     <S.ToolbarContainer>
-      <div onClick={() => onItemClick("sort")}>First Name</div>
-      <div>Search</div>
+      <div className={styles.toolbar__item_wrapper}>
+        <FormControl variant="outlined" className={styles.toolbar__formControl}>
+          <Select
+            labelId="demo-simple-select-outlined-label"
+            id="demo-simple-select-outlined"
+            value={sortCriteria}
+            onChange={handleChangeCriteria}
+            className={styles.toolbar__select}
+          >
+            <MenuItem value={"first_name"}>First Name</MenuItem>
+            <MenuItem value={"last_name"}>Last Name</MenuItem>
+          </Select>
+        </FormControl>
+        <FontAwesomeIcon
+          icon={sortOrder === "desc" ? "sort-alpha-up" : "sort-alpha-down"}
+          onClick={() => onItemClick("sort")}
+          className={sortOrder == "" ? styles.toolbar__sort_disabled : styles.toolbar__sort_enabled}
+        />
+      </div>
+      <div>
+        {" "}
+        <TextField id="outlined-basic" variant="outlined" placeholder="Search" className={styles.toolbar__search} onChange={handleChangeSearchText} />
+      </div>
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
   )
