@@ -1,8 +1,10 @@
+import { RolllStateType } from "shared/models/roll"
 export interface Person {
   id: number
   first_name: string
   last_name: string
   photo_url?: string
+  role?:RolllStateType
 }
 
 export const PersonHelper = {
