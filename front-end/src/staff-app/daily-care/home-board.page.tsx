@@ -10,11 +10,16 @@ import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import { useStudents } from "../../shared/contexts/student-context"
+import { RolllStateType } from "../../shared/models/roll"
+import { TextField, Select, MenuItem, FormControl } from "@material-ui/core"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const { students, setStudents } = useStudents()
+  const [filteredStudents, setFilteredStudents] = useState<Person[]>([])
+  const [isFiltering, setIsFiltering] = useState<Boolean>(false)
+  const [filterType, setFilterType] = useState<ItemType>()
 
   useEffect(() => {
     if (data) setStudents(data.students)
@@ -30,15 +35,22 @@ export const HomeBoardPage: React.FC = () => {
     }
   }
 
-  const onActiveRollAction = (action: ActiveRollAction) => {
+  const onActiveRollAction = (action: ActiveRollAction, type?: ItemType) => {
     if (action === "exit") {
       setIsRollMode(false)
+      setIsFiltering(false)
+    } else if (type == "all") {
+      setIsFiltering(false)
+    } else {
+      setFilterType(type)
+      setIsFiltering(true)
     }
   }
 
   return (
     <>
       <S.PageContainer>
+        {JSON.stringify(students)}
         <Toolbar onItemClick={onToolbarAction} />
 
         {loadState === "loading" && (
@@ -47,11 +59,11 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && data?.students && (
+        {loadState === "loaded" && students && (
           <>
-            {data.students.map((s) => (
-              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
-            ))}
+            {students.map((s) => {
+              if ((isFiltering && s.role_state == filterType) || !isFiltering) return <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
+            })}
           </>
         )}
 
@@ -65,7 +77,7 @@ export const HomeBoardPage: React.FC = () => {
     </>
   )
 }
-
+type ItemType = RolllStateType | "all"
 type ToolbarAction = "roll" | "sort"
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
