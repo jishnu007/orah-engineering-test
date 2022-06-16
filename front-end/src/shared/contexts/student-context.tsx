@@ -4,7 +4,7 @@ import { Person } from "shared/models/person"
 
 export type StudentContextType = {
   students: Person[]
-  setStudents: (persons: Person[]) => void
+  setStudents: React.Dispatch<React.SetStateAction<Person[]>>
 }
 
 const StudentContext = createContext<StudentContextType>({} as StudentContextType)

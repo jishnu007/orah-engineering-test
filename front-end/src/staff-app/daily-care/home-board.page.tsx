@@ -63,6 +63,7 @@ export const HomeBoardPage: React.FC = () => {
     if (action === "exit") {
       setIsRollMode(false)
       setIsFiltering(false)
+      void getStudents()
     } else if (type == "all") {
       setIsFiltering(false)
     } else {

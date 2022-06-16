@@ -1,10 +1,11 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import Button from "@material-ui/core/Button"
 import { BorderRadius, Spacing } from "shared/styles/styles"
 import { RollStateList } from "staff-app/components/roll-state/roll-state-list.component"
 import { useStudents } from "shared/contexts/student-context"
-import { RolllStateType } from "shared/models/roll"
+import { RolllStateType, RollInput } from "shared/models/roll"
+import { useApi } from "shared/hooks/use-api"
 
 export type ActiveRollAction = "filter" | "exit"
 interface Props {
@@ -15,8 +16,27 @@ interface Props {
 export const ActiveRollOverlay: React.FC<Props> = (props) => {
   const { isActive, onItemClick } = props
   const { students } = useStudents()
+  const [saveRoll, data, loadState] = useApi<{ data: any }>({ url: "save-roll" })
+  const [studentState, setStudentState] = useState<RollInput>()
+
+  useEffect(() => {
+    void saveRoll(studentState)
+  }, [saveRoll, studentState])
+  useEffect(() => {
+    if (data) {
+      onItemClick("exit")
+    }
+  }, [loadState])
+
   const getCount = (roll: RolllStateType) => {
     return students.filter((s) => s.role_state === roll).length
+  }
+
+  const handleSave = async () => {
+    const student_roll_states = students.map((s) => {
+      return { student_id: s.id, roll_state: s.role_state ? s.role_state : "unmark" }
+    })
+    setStudentState({ student_roll_states } as RollInput)
   }
 
   return (
@@ -37,7 +57,7 @@ export const ActiveRollOverlay: React.FC<Props> = (props) => {
             <Button color="inherit" onClick={() => onItemClick("exit")}>
               Exit
             </Button>
-            <Button color="inherit" style={{ marginLeft: Spacing.u2 }} onClick={() => onItemClick("exit")}>
+            <Button color="inherit" style={{ marginLeft: Spacing.u2 }} onClick={handleSave}>
               Complete
             </Button>
           </div>
