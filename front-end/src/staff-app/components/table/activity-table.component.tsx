@@ -104,7 +104,7 @@ export const ActivityTable: React.FC<Props> = ({ attendenceData, loading }) => {
     setPage(0)
   }
   // Sorting
-  const [order, setOrder] = useState<Order>("asc")
+  const [order, setOrder] = useState<Order>("desc")
   const [orderBy, setOrderBy] = useState<string>("date")
   const createSortHandler = (property: any) => (event: any) => {
     handleRequestSort(event, property)
