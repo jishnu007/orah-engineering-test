@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
-import { Spacing } from "shared/styles/styles"
 import { useApi } from "shared/hooks/use-api"
-import { RollInput, Roll } from "shared/models/roll"
 import { ActivityTable } from "../components/table/activity-table.component"
 import { Activity } from "../../shared/models/activity"
 
