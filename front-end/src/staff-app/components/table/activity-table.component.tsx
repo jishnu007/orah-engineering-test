@@ -33,7 +33,7 @@ interface HeadCell {
 type Order = "asc" | "desc"
 
 export const ActivityTable: React.FC<Props> = ({ attendenceData, loading }) => {
-  const createData = (date: string, name: string, present: number, late: number, absent: number, unmark: number) => {
+  const createData = (date: Date, name: string, present: number, late: number, absent: number, unmark: number) => {
     return {
       date,
       name,
@@ -44,7 +44,7 @@ export const ActivityTable: React.FC<Props> = ({ attendenceData, loading }) => {
     }
   }
   const tableData = attendenceData.map((e) => {
-    const date = new Date(e.date).toLocaleString()
+    const date = e.date
     const name = e.entity.name
     const present = e.entity.student_roll_states.filter((f) => f.roll_state === "present").length
     const late = e.entity.student_roll_states.filter((f) => f.roll_state === "late").length
@@ -105,7 +105,7 @@ export const ActivityTable: React.FC<Props> = ({ attendenceData, loading }) => {
   }
   // Sorting
   const [order, setOrder] = useState<Order>("asc")
-  const [orderBy, setOrderBy] = useState<string>("name")
+  const [orderBy, setOrderBy] = useState<string>("date")
   const createSortHandler = (property: any) => (event: any) => {
     handleRequestSort(event, property)
   }
@@ -151,7 +151,7 @@ export const ActivityTable: React.FC<Props> = ({ attendenceData, loading }) => {
             .map((item, index) => {
               return (
                 <TableRow key={index} className={Styles.activityTable__row}>
-                  <TableCell>{item.date}</TableCell>
+                  <TableCell>{new Date(item.date).toLocaleString()}</TableCell>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.present}</TableCell>
                   <TableCell>{item.late}</TableCell>
