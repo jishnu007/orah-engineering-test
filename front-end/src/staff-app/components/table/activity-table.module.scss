@@ -1,0 +1,18 @@
+.activityTable{
+    &__footer{
+        width: 100%;
+        display: flex !important;
+        justify-content: end;
+    }
+    &__head{
+        background: #6c7ae0 !important;
+        th{
+            span{
+                color: #ffffff;
+            }
+        }
+    }
+    &__row:hover{
+        background-color: #ececff;
+    }
+}
