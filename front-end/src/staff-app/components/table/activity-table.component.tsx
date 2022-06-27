@@ -14,9 +14,9 @@ import {
   TableSortLabel,
 } from "@material-ui/core"
 import React, { useState } from "react"
-import { Roll } from "shared/models/roll"
 import { Activity } from "../../../shared/models/activity"
 import Styles from "./activity-table.module.scss"
+import { RolllStateType } from "../../../shared/models/roll"
 
 interface Props {
   attendenceData: Activity[]
@@ -41,13 +41,16 @@ export const ActivityTable: React.FC<Props> = ({ attendenceData, loading }) => {
       unmark,
     }
   }
+  const getCount = (type: RolllStateType, attendence: Activity) => {
+    return attendence.entity.student_roll_states.filter((f) => f.roll_state === type).length
+  }
   const tableData = attendenceData.map((e) => {
     const date = e.date
     const name = e.entity.name
-    const present = e.entity.student_roll_states.filter((f) => f.roll_state === "present").length
-    const late = e.entity.student_roll_states.filter((f) => f.roll_state === "late").length
-    const absent = e.entity.student_roll_states.filter((f) => f.roll_state === "absent").length
-    const unmark = e.entity.student_roll_states.filter((f) => f.roll_state === "unmark").length
+    const present = getCount("present", e)
+    const late = getCount("late", e)
+    const absent = getCount("absent", e)
+    const unmark = getCount("unmark", e)
     return createData(date, name, present, late, absent, unmark)
   })
 
@@ -77,7 +80,7 @@ export const ActivityTable: React.FC<Props> = ({ attendenceData, loading }) => {
       label: "Late",
     },
     {
-      id: "abscent",
+      id: "absent",
       numeric: true,
       disablePadding: true,
       label: "Absent",
@@ -168,7 +171,7 @@ export const ActivityTable: React.FC<Props> = ({ attendenceData, loading }) => {
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </TableFooter>
     </TableContainer>
