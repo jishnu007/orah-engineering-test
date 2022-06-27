@@ -13,11 +13,9 @@ import {
   TableRow,
   TableSortLabel,
 } from "@material-ui/core"
-import { StylesContext, useTheme } from "@material-ui/styles"
 import React, { useState } from "react"
 import { Roll } from "shared/models/roll"
 import { Activity } from "../../../shared/models/activity"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Styles from "./activity-table.module.scss"
 
 interface Props {
@@ -169,7 +167,7 @@ export const ActivityTable: React.FC<Props> = ({ attendenceData, loading }) => {
           count={attendenceData.length}
           rowsPerPage={rowsPerPage}
           page={page}
-          onChangePage={handleChangePage}
+          onPageChange={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </TableFooter>
